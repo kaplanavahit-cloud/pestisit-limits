@@ -11,7 +11,14 @@ export default function TermsModal({ onAccept }: Props) {
 
   const handleAccept = () => {
     if (!checked) return;
+    
+    // localStorage'e kaydet (eski sistemle uyumluluk için)
     localStorage.setItem('terms_accepted', 'true');
+    
+    // Cookie'ye de kaydet (middleware için)
+    document.cookie = "terms_accepted=true; path=/; max-age=31536000"; // 1 yıl
+    document.cookie = "terms_version=v1; path=/; max-age=31536000";
+    
     onAccept();
   };
 
