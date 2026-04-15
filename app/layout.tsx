@@ -1,22 +1,52 @@
 // app/layout.tsx
 
-import type { Metadata } from "next";
-import Link from "next/link";
-import "./globals.css";
+'use client';
 
-export const metadata: Metadata = {
-  title: "Pestisit Limit Kontrol",
-  description: "AB, Türkiye ve Rusya pestisit limit kontrolü",
-};
+import { useEffect, useState } from 'react';
+import Link from "next/link";
+import TermsModal from '@/components/TermsModal';
+import CookieConsent from '@/components/CookieConsent';
+import "./globals.css";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [showTerms, setShowTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const accepted = localStorage.getItem('terms_accepted');
+    if (!accepted) {
+      setShowTerms(true);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handleAcceptTerms = () => {
+    setShowTerms(false);
+  };
+
+  if (isLoading) {
+    return (
+      <html lang="tr" className="h-full w-full">
+        <body className="min-h-screen w-full bg-gray-50 antialiased flex items-center justify-center">
+          <div className="text-gray-500">Yükleniyor...</div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="tr" className="h-full w-full">
       <body className="min-h-screen w-full bg-gray-50 antialiased text-gray-900 overflow-x-hidden flex flex-col">
+        {/* Terms Modal - İlk girişte zorunlu onay */}
+        {showTerms && <TermsModal onAccept={handleAcceptTerms} />}
+        
+        {/* Cookie Consent - Çerez onay popup'ı */}
+        <CookieConsent />
+
         {/* Ana içerik alanı - flex-grow ile footer'ı aşağı iter */}
         <main className="flex-grow w-full">
           {children}
