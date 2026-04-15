@@ -17,8 +17,19 @@ export default function RootLayout({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const accepted = localStorage.getItem('terms_accepted');
-    if (!accepted) {
+    // Cookie'den terms_accepted kontrolü (middleware ile uyumlu)
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+
+    const cookieAccepted = getCookie('terms_accepted');
+    const localStorageAccepted = localStorage.getItem('terms_accepted');
+    
+    // Eğer cookie'de veya localStorage'da kabul varsa modal gösterme
+    if (!cookieAccepted && !localStorageAccepted) {
       setShowTerms(true);
     }
     setIsLoading(false);
