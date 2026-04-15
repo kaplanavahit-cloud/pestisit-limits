@@ -9,19 +9,6 @@ type Props = {
 export default function TermsModal({ onAccept }: Props) {
   const [checked, setChecked] = useState(false);
 
-  const handleAccept = () => {
-    if (!checked) return;
-    
-    // localStorage'e kaydet (eski sistemle uyumluluk için)
-    localStorage.setItem('terms_accepted', 'true');
-    
-    // Cookie'ye de kaydet (middleware için)
-    document.cookie = "terms_accepted=true; path=/; max-age=31536000"; // 1 yıl
-    document.cookie = "terms_version=v1; path=/; max-age=31536000";
-    
-    onAccept();
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="bg-white max-w-xl w-full p-6 rounded-2xl shadow-xl mx-4">
@@ -62,7 +49,7 @@ export default function TermsModal({ onAccept }: Props) {
         </label>
 
         <button
-          onClick={handleAccept}
+          onClick={onAccept}
           disabled={!checked}
           className={`w-full py-2 rounded-lg text-white transition ${
             checked 
