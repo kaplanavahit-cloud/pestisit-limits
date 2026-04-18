@@ -9,7 +9,7 @@ export default function TermsPage() {
             Kullanıcı Sözleşmesi
           </h1>
           <p className="text-gray-600">
-            Son güncelleme: 15 Nisan 2026
+            Son güncelleme: 18 Nisan 2026
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">6. İletişim</h2>
             <p className="text-gray-700">
-              Soru, görüş ve şikayetleriniz için: destek@xxxxxx.com
+              Soru, görüş ve şikayetleriniz için: mrldestek.com
             </p>
           </section>
 

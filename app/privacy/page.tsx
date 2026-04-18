@@ -162,10 +162,10 @@ export default function PrivacyPage() {
             </p>
             <div className="ml-8 mt-3 p-3 bg-white rounded border border-gray-200">
               <p className="text-gray-700">
-                <span className="font-medium">E-posta:</span> destek@pestisit-limits.com
+                <span className="font-medium">E-posta:</span> mrldestek@gmail.com
               </p>
               <p className="text-gray-700 mt-1">
-                <span className="font-medium">Adres:</span> [İsteğe bağlı - adres bilginizi ekleyebilirsiniz]
+            
               </p>
             </div>
           </section>
