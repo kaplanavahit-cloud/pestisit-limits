@@ -64,8 +64,34 @@ export default function TermsPage() {
             </p>
           </section>
 
+          {/* ✅ YENİ MADDE: FİKRİ MÜLKİYET VE KULLANIM KISITLAMALARI */}
+          <section className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h2 className="text-xl font-semibold text-blue-800 mb-2">7. Fikri Mülkiyet ve Kullanım Kısıtlamaları</h2>
+            <div className="text-gray-700 space-y-3">
+              <p>
+                <strong>7.1.</strong> Bu platformda yer alan tüm içerik (veritabanı, metinler, görseller, logolar, 
+                grafikler, yazılım kodu) ve marka unsurları (<strong>MRL Control</strong> ismi ve logosu), 
+                aksi belirtilmediği sürece <strong>Ahmet Kaplan</strong>'ın mülkiyetindedir ve uluslararası 
+                telif hakkı ve fikri mülkiyet yasaları tarafından korunmaktadır.
+              </p>
+              <p>
+                <strong>7.2.</strong> Platformdaki hiçbir içerik, <strong>yazılı izin olmadan</strong> kopyalanamaz, 
+                dağıtılamaz, değiştirilemez, yeniden yayınlanamaz, satılamaz veya ticari amaçla kullanılamaz.
+              </p>
+              <p>
+                <strong>7.3.</strong> Veritabanımızın tamamının veya önemli bir kısmının, otomatik veya manuel yollarla 
+                ("ekran kazıma" veya "web scraping" dahil) izinsiz olarak kopyalanması, bu sözleşmenin ihlali 
+                anlamına gelir ve yasal işlemlere tabi tutulabilir.
+              </p>
+              <p>
+                <strong>7.4.</strong> <strong>MRL Control</strong> ismi ve logosu tescilli marka adayıdır. 
+                Bu isim veya logo, yazılı izin olmadan kullanılamaz.
+              </p>
+            </div>
+          </section>
+
           <div className="border-t pt-6 text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} Pestisit Limit Kontrol (MRL Control)</p>
+            <p>© {new Date().getFullYear()} MRL Control - Abdulvahit Kaplan. Tüm hakları saklıdır.</p>
           </div>
         </div>
 
