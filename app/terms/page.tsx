@@ -71,7 +71,7 @@ export default function TermsPage() {
               <p>
                 <strong>7.1.</strong> Bu platformda yer alan tüm içerik (veritabanı, metinler, görseller, logolar, 
                 grafikler, yazılım kodu) ve marka unsurları (<strong>MRL Control</strong> ismi ve logosu), 
-                aksi belirtilmediği sürece <strong>Ahmet Kaplan</strong>'ın mülkiyetindedir ve uluslararası 
+                aksi belirtilmediği sürece <strong>Abdulvahit Kaplan</strong>'ın mülkiyetindedir ve uluslararası 
                 telif hakkı ve fikri mülkiyet yasaları tarafından korunmaktadır.
               </p>
               <p>
