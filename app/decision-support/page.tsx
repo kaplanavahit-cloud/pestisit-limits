@@ -41,6 +41,9 @@ type PastedRow = {
 type ActiveTab = 'input' | 'report' | 'special';
 type SpecialListTab = 'turkey-banned' | 'russia-zero' | 'russia-no-limit';
 
+// ✅ Maksimum satır sınırı
+const MAX_ROWS = 12;
+
 export default function DecisionSupportPage() {
   const supabase = createClient();
 
@@ -111,13 +114,19 @@ export default function DecisionSupportPage() {
     return flags;
   }, [turkeyBanned, russiaZero, russiaNoLimit, matchesList]);
 
-  // AKILLI PARSE FONKSİYONU
+  // AKILLI PARSE FONKSİYONU (12 satır sınırlı)
   const parseTableData = (text: string): PastedRow[] => {
     const lines = text.trim().split(/\r?\n/);
     const data: PastedRow[] = [];
 
     for (const line of lines) {
       if (!line.trim()) continue;
+      
+      // ✅ 12 satır sınırı kontrolü
+      if (data.length >= MAX_ROWS) {
+        alert(`En fazla ${MAX_ROWS} satır veri işlenebilir. Fazla satırlar atlandı.`);
+        break;
+      }
 
       let parts: string[];
       if (line.includes('\t')) {
@@ -176,6 +185,12 @@ export default function DecisionSupportPage() {
     const parsed = parseTableData(pasteData);
     if (!parsed.length) {
       alert('Veri formatı anlaşılamadı.');
+      return;
+    }
+    
+    // ✅ Satır sayısı kontrolü
+    if (parsed.length > MAX_ROWS) {
+      alert(`En fazla ${MAX_ROWS} satır analiz edilebilir. Lütfen verinizi ${MAX_ROWS} satır veya daha az olacak şekilde düzenleyin.`);
       return;
     }
 
@@ -518,6 +533,7 @@ citrus frut	malathion	10
 apple	glyphosate	0.05
 wheat	chlorpyrifos	0.02
 
+⚠️ EN FAZLA ${MAX_ROWS} SATIR ANALİZ EDİLEBİLİR
 💡 Ürün adı birden fazla kelimeyken SEKME (Tab) kullanın
 💡 Tüm veritabanı varyasyonları gösterilir, yanlış eşleşmeyi X ile kaldırabilirsiniz
 💡 ÖB, sonucun ALT limitine uygulanır (Ölçülen - ÖB). CODEX ve Rusya'ya uygulanmaz.`}
@@ -663,7 +679,7 @@ wheat	chlorpyrifos	0.02
                                 >
                                   ✕
                                 </button>
-                               </td>
+                                </td>
                               <td className="px-5 py-3 whitespace-nowrap">
                                 <span className="mr-1.5">{getFlag(r.country.code)}</span>
                                 <span className="font-medium text-gray-800">{r.country.name}</span>
