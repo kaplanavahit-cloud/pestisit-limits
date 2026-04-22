@@ -1,9 +1,9 @@
 // lib/rate-limit.ts
 
 interface RateLimitOptions {
-  interval: number;  // ms cinsinden (örn: 60 * 1000 = 1 dakika)
+  interval: number;
   uniqueTokenPerInterval: number;
-  limit: number;     // interval başına maksimum istek
+  limit: number;
 }
 
 interface RateLimitStore {
@@ -13,7 +13,11 @@ interface RateLimitStore {
   };
 }
 
-// ✅ Googlebot User-Agent kontrolü
+// robots.txt ve sitemap.xml kontrolü (EN ÜSTTE, EN ÖNEMLİ)
+function isPublicPath(pathname: string): boolean {
+  return pathname === '/robots.txt' || pathname === '/sitemap.xml';
+}
+
 function isGooglebot(userAgent: string): boolean {
   return userAgent.includes('Googlebot');
 }
@@ -21,7 +25,6 @@ function isGooglebot(userAgent: string): boolean {
 export default function rateLimit(options: RateLimitOptions) {
   const store: RateLimitStore = {};
   
-  // Eski kayıtları temizle (bellek sızıntısını önlemek için)
   setInterval(() => {
     const now = Date.now();
     for (const key in store) {
@@ -33,14 +36,21 @@ export default function rateLimit(options: RateLimitOptions) {
   
   return {
     async check(request: Request): Promise<void> {
-      // ✅ Googlebot ise rate limit uygulama (direkt geç)
-      const userAgent = request.headers.get('user-agent') || '';
-      if (isGooglebot(userAgent)) {
-        console.log('🤖 Googlebot tespit edildi, rate limit atlandı');
+      // 🔓 1. robots.txt ve sitemap.xml KESİNLİKLE MUAF
+      const url = new URL(request.url);
+      if (isPublicPath(url.pathname)) {
+        console.log(`🔓 Muaf: ${url.pathname} - rate limit atlandı`);
         return;
       }
       
-      // IP adresini al (Vercel'de çalışacak şekilde)
+      // 🤖 2. Googlebot da muaf
+      const userAgent = request.headers.get('user-agent') || '';
+      if (isGooglebot(userAgent)) {
+        console.log('🤖 Googlebot muaf');
+        return;
+      }
+      
+      // 3. Diğer her şeye rate limit uygula
       const ip = request.headers.get('x-forwarded-for')?.split(',')[0] 
         || request.headers.get('x-real-ip') 
         || 'unknown';
@@ -50,17 +60,11 @@ export default function rateLimit(options: RateLimitOptions) {
       const resetTime = Math.floor(now / options.interval) * options.interval + options.interval;
       
       if (!store[key] || store[key].resetTime < now) {
-        // Yeni kayıt
-        store[key] = {
-          count: 1,
-          resetTime: resetTime,
-        };
+        store[key] = { count: 1, resetTime };
         return;
       }
       
-      // Varolan kayıt
       store[key].count++;
-      
       if (store[key].count > options.limit) {
         const error: any = new Error('Rate limit exceeded');
         error.statusCode = 429;
