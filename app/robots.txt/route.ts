@@ -1,0 +1,14 @@
+// app/robots.txt/route.ts
+
+export async function GET() {
+  const robotsTxt = `User-agent: *
+Allow: /
+Sitemap: https://mrlcontrol.com/sitemap.xml
+`;
+
+  return new Response(robotsTxt, {
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+  });
+}
