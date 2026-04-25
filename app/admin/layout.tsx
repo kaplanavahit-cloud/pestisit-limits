@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 
 export default function AdminLayout({
@@ -7,15 +6,16 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const auth = localStorage.getItem('admin_auth')
-    if (auth === 'true') {
-      setIsAuthenticated(true)
-    }
+    // Cookie kontrolünü API üzerinden yap
+    fetch('/api/admin/check-auth')
+      .then(res => res.json())
+      .then(data => setIsAuthenticated(data.authenticated))
+      .catch(() => setIsAuthenticated(false))
   }, [])
 
   const handleLogin = async () => {
@@ -23,7 +23,7 @@ export default function AdminLayout({
       alert('Lütfen şifre girin')
       return
     }
-    
+
     setLoading(true)
     try {
       const res = await fetch('/api/admin/check-password', {
@@ -32,9 +32,8 @@ export default function AdminLayout({
         body: JSON.stringify({ password })
       })
       const data = await res.json()
-      
+
       if (data.success) {
-        localStorage.setItem('admin_auth', 'true')
         setIsAuthenticated(true)
         setPassword('')
       } else {
@@ -44,6 +43,15 @@ export default function AdminLayout({
       alert('Bir hata oluştu')
     }
     setLoading(false)
+  }
+
+  // Cookie kontrolü yapılıyor, bekle
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-400">Yükleniyor...</div>
+      </div>
+    )
   }
 
   if (!isAuthenticated) {

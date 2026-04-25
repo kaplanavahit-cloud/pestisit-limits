@@ -1,19 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 
 export const revalidate = 60
 
 export default async function AdminFeedback() {
+    const cookieStore = await cookies()
+    const isAdmin = cookieStore.get('admin-auth')?.value === 'true'
+
+    if (!isAdmin) redirect('/')
+
     const supabase = await createClient()
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const ADMIN_EMAIL = 'mrldestek@gmail.com'
-
-    if (!user || user.email !== ADMIN_EMAIL) {
-        redirect('/')
-    }
 
     const { data: feedbacks } = await supabase
         .from('feedback')
@@ -62,8 +60,7 @@ export default async function AdminFeedback() {
                 {feedbacks?.map((fb) => (
                     <div
                         key={fb.id}
-                        className={`border rounded-lg p-4 bg-white shadow-sm ${fb.status === 'pending' ? 'border-l-4 border-l-red-500' : ''
-                            }`}
+                        className={`border rounded-lg p-4 bg-white shadow-sm ${fb.status === 'pending' ? 'border-l-4 border-l-red-500' : ''}`}
                     >
                         <div className="flex justify-between items-start flex-wrap gap-2">
                             <div>
@@ -97,7 +94,6 @@ export default async function AdminFeedback() {
                                         '✅ Çözüldü'}
                             </span>
 
-                            {/* Durum Güncelleme Butonları */}
                             <div className="flex gap-1 ml-auto">
                                 <form action={`/api/admin/feedback/update-status`} method="POST" className="inline">
                                     <input type="hidden" name="id" value={fb.id} />
