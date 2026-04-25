@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
                 </form>
 
                 <p className="text-center text-sm text-gray-500 mt-4">
-                    <Link href="/login" className="text-green-600 hover:underline">
+                    <Link href="/" className="text-green-600 hover:underline">
                         Giriş sayfasına dön
                     </Link>
                 </p>
