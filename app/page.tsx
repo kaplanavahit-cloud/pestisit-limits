@@ -30,6 +30,7 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const [product, setProduct] = useState('');
   const [pesticide, setPesticide] = useState('');
@@ -40,7 +41,6 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [sortMode, setSortMode] = useState<SortMode>('');
 
-  // Özel listeler için state'ler
   const [turkeyBanned, setTurkeyBanned] = useState<any[]>([]);
   const [russiaZeroTolerance, setRussiaZeroTolerance] = useState<any[]>([]);
   const [russiaNoLimit, setRussiaNoLimit] = useState<any[]>([]);
@@ -53,7 +53,6 @@ export default function Home() {
   };
   const getFlag = (code?: string) => FLAG[code ?? ''] ?? '🌍';
 
-  // Özel listeleri çekme fonksiyonları
   const fetchTurkeyBanned = async () => {
     try {
       const res = await fetch('/api/restricted-pesticides?listType=turkey-banned&source=custom');
@@ -92,7 +91,8 @@ export default function Home() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setAuthError('');
+    setLoading(true);
+    setAuthError('');
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) setAuthError(error.message);
     setLoading(false);
@@ -100,17 +100,21 @@ export default function Home() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setAuthError('');
+    setLoading(true);
+    setAuthError('');
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) setAuthError(error.message);
-    else alert('Registration successful! Check your email.');
+    else setAuthError('Kayıt başarılı! E-postanı kontrol et.');
     setLoading(false);
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setRawResults([]); setResults([]);
-    setSearched(false); setProduct(''); setPesticide('');
+    setRawResults([]);
+    setResults([]);
+    setSearched(false);
+    setProduct('');
+    setPesticide('');
   };
 
   useEffect(() => {
@@ -119,7 +123,6 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Özel listeleri yükle
   useEffect(() => {
     const fetchAllLists = async () => {
       setLoadingCards(true);
@@ -224,6 +227,9 @@ export default function Home() {
     return [...map.values()];
   })();
 
+  // ───────────────────────────────────────────────
+  // LOGIN / KAYIT EKRANI
+  // ───────────────────────────────────────────────
   if (!session) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center p-4">
@@ -237,54 +243,71 @@ export default function Home() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">MRL Control</h1>
             <p className="text-gray-500 mt-2">Global Pesticide Limit Database</p>
           </div>
-          
+
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-            <form onSubmit={handleLogin} className="space-y-5">
+            <p className="text-sm text-gray-500 mb-5 text-center">
+              {isSignUp ? 'Yeni hesap oluştur' : 'Hesabına giriş yap'}
+            </p>
+
+            <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input 
-                  type="email" 
-                  value={email} 
+                <input
+                  type="email"
+                  value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" 
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input 
-                  type="password" 
-                  value={password} 
+                {/* Password label + Şifremi unuttum */}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Şifre</label>
+                  {!isSignUp && (
+                    <Link
+                      href="/forgot-password"
+                      className="text-sm text-emerald-600 hover:text-emerald-700 hover:underline"
+                    >
+                      🔐 Şifremi unuttum?
+                    </Link>
+                  )}
+                </div>
+                <input
+                  type="password"
+                  value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" 
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                 />
               </div>
-              
+
               {authError && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                  <p className="text-red-600 text-sm">{authError}</p>
+                <div className={`border rounded-xl p-3 ${authError.includes('başarılı') ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <p className={`text-sm ${authError.includes('başarılı') ? 'text-emerald-700' : 'text-red-600'}`}>{authError}</p>
                 </div>
               )}
-              
-              <div className="flex gap-3 pt-2">
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md shadow-emerald-200 disabled:opacity-50"
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md shadow-emerald-200 disabled:opacity-50"
+              >
+                {loading ? 'Lütfen bekleyin...' : isSignUp ? 'Kayıt Ol' : 'Giriş Yap'}
+              </button>
+
+              {/* Hesabın yok mu / var mı */}
+              <div className="text-center text-sm text-gray-500 pt-1">
+                {isSignUp ? 'Hesabın var mı? ' : 'Hesabın yok mu? '}
+                <button
+                  type="button"
+                  onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }}
+                  className="text-emerald-600 font-medium hover:underline"
                 >
-                  Sign In
-                </button>
-                <button 
-                  type="button" 
-                  onClick={handleSignUp} 
-                  disabled={loading}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-xl transition-all duration-200"
-                >
-                  Register
+                  {isSignUp ? 'Giriş yap' : 'Kayıt ol'}
                 </button>
               </div>
             </form>
@@ -294,6 +317,9 @@ export default function Home() {
     );
   }
 
+  // ───────────────────────────────────────────────
+  // ANA DASHBOARD (oturum açıksa)
+  // ───────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -307,41 +333,36 @@ export default function Home() {
             <span className="font-semibold text-gray-900 text-lg">MRL Control</span>
             <span className="text-gray-400 text-sm hidden sm:block">| Global Compliance Platform</span>
           </div>
-          
+
           <div className="flex items-center gap-4">
-            {/* Decision Support Butonu */}
             <Link href="/decision-support">
               <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-emerald-700 rounded-xl text-sm font-medium transition-all duration-200 border border-emerald-200">
                 <span className="text-base">🧪</span>
                 <span>Decision Support</span>
               </button>
             </Link>
-            
-            {/* Turkey Banned Butonu */}
+
             <Link href="/turkey-banned">
               <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 text-orange-700 rounded-xl text-sm font-medium transition-all duration-200 border border-orange-200">
                 <span className="text-base">🇹🇷</span>
                 <span>Turkey Banned</span>
               </button>
             </Link>
-            
-            {/* Russia Zero Tolerance Butonu */}
+
             <Link href="/russia-zero-tolerance">
               <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-rose-50 hover:from-red-100 hover:to-rose-100 text-red-700 rounded-xl text-sm font-medium transition-all duration-200 border border-red-200">
                 <span className="text-base">⛔</span>
                 <span>Russia Zero Tolerance</span>
               </button>
             </Link>
-            
-            {/* Russia No Limit Butonu */}
+
             <Link href="/russia-no-limit">
               <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 text-purple-700 rounded-xl text-sm font-medium transition-all duration-200 border border-purple-200">
                 <span className="text-base">🔬</span>
                 <span>Russia No Limit</span>
               </button>
             </Link>
-            
-            {/* Kullanıcı ve Logout */}
+
             <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
               <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full flex items-center justify-center shadow-sm">
                 <span className="text-sm text-white font-medium">
@@ -350,8 +371,8 @@ export default function Home() {
               </div>
               <span className="text-sm text-gray-600 hidden sm:block">{session.user.email}</span>
             </div>
-            
-            <button 
+
+            <button
               onClick={handleLogout}
               className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
             >
@@ -362,12 +383,9 @@ export default function Home() {
       </header>
 
       <div className="max-w-[1400px] mx-auto px-6 py-8">
-        
-        {/* ÖZEL LİSTE KARTLARI */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          
-          {/* 1. Türkiye Yasaklı Pestisitler */}
-          <InfoCard 
+          <InfoCard
             title="TÜRKİYE YASAKLI PESTİSİTLER"
             description="Türkiye'de kullanımı sonlandırılan yasaklı pestisitler"
             icon="🇹🇷"
@@ -377,9 +395,7 @@ export default function Home() {
             badgeColor="orange"
             showButton={false}
           />
-          
-          {/* 2. Rusya - Hiçbir Üründe Bulunmaması Gerekenler */}
-          <InfoCard 
+          <InfoCard
             title="RUSYA - HİÇBİR ÜRÜNDE BULUNMAMASI GEREKENLER"
             description="Rusya mevzuatına göre MRL değeri 0 olması gereken maddeler"
             icon="⛔"
@@ -389,9 +405,7 @@ export default function Home() {
             badgeColor="red"
             showButton={false}
           />
-          
-          {/* 3. Rusya - Limit Belirlenmesine Gerek Yok */}
-          <InfoCard 
+          <InfoCard
             title="RUSYA - LİMİT BELİRLENMESİNE GEREK YOK"
             description="Rusya mevzuatına göre MRL belirlenmesine gerek olmayan maddeler"
             icon="🔬"
@@ -401,7 +415,6 @@ export default function Home() {
             badgeColor="purple"
             showButton={false}
           />
-          
         </div>
 
         {searched && (
@@ -412,8 +425,8 @@ export default function Home() {
               { label: 'Average MRL', value: stats.avg, sub: 'mg/kg (numeric)', icon: '📈', color: 'purple' },
               { label: 'Range (Min/Max)', value: stats.range, sub: 'mg/kg range', icon: '⚖️', color: 'orange' },
             ].map((s) => (
-              <div 
-                key={s.label} 
+              <div
+                key={s.label}
                 className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:border-emerald-200"
               >
                 <div className="flex items-start justify-between mb-3">
@@ -432,41 +445,41 @@ export default function Home() {
             <h1 className="text-xl font-bold text-gray-900 mb-1">🌍 Global MRL Database</h1>
             <p className="text-sm text-gray-500">Search maximum residue limits across all countries simultaneously</p>
           </div>
-          
+
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🍎</div>
-                  <input 
-                    type="text" 
-                    value={product} 
+                  <input
+                    type="text"
+                    value={product}
                     onChange={e => setProduct(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && search()}
                     placeholder="e.g., Apple, Wheat, Potato..."
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" 
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Pesticide Name</label>
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🧪</div>
-                  <input 
-                    type="text" 
-                    value={pesticide} 
+                  <input
+                    type="text"
+                    value={pesticide}
                     onChange={e => setPesticide(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && search()}
                     placeholder="e.g., Glyphosate, Chlorpyrifos..."
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" 
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                   />
                 </div>
               </div>
             </div>
-            
-            <button 
+
+            <button
               onClick={search}
               disabled={searching || (!product.trim() && !pesticide.trim())}
               className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -493,12 +506,12 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <div className="flex bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                 {(['list', 'group', 'table'] as ViewMode[]).map(v => (
-                  <button 
-                    key={v} 
+                  <button
+                    key={v}
                     onClick={() => setViewMode(v)}
                     className={`px-4 py-2 text-sm capitalize transition-all duration-200 ${
-                      viewMode === v 
-                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white' 
+                      viewMode === v
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -507,8 +520,8 @@ export default function Home() {
                 ))}
               </div>
 
-              <select 
-                value={sortMode} 
+              <select
+                value={sortMode}
                 onChange={e => handleSortChange(e.target.value as SortMode)}
                 className="bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 shadow-sm"
               >
@@ -530,8 +543,8 @@ export default function Home() {
             {viewMode === 'list' && (
               <div className="space-y-3">
                 {results.length > 0 ? results.map((item) => (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     className="bg-white border border-gray-100 rounded-xl p-4 flex flex-wrap items-start justify-between gap-4 hover:shadow-md hover:border-emerald-200 transition-all duration-200"
                   >
                     <div className="flex-1 min-w-0">
@@ -653,13 +666,13 @@ export default function Home() {
 
             {results.length > 0 && (
               <div className="flex gap-3 mt-6">
-                <button 
+                <button
                   onClick={exportCSV}
                   className="px-4 py-2 bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-300 rounded-xl text-sm transition-all duration-200 shadow-sm"
                 >
                   ⬇ Export CSV
                 </button>
-                <button 
+                <button
                   onClick={copyTable}
                   className="px-4 py-2 bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-300 rounded-xl text-sm transition-all duration-200 shadow-sm"
                 >
