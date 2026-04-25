@@ -1,5 +1,3 @@
-// middleware.ts
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -10,6 +8,11 @@ const publicPaths = [
   '/privacy',    // Gizlilik politikası
   '/api',        // API route'ları
   '/login',      // Giriş sayfası (isteğe bağlı)
+  '/changelog',  // Herkesin göreceği güncelleme geçmişi
+  '/admin',      // Admin ana sayfası
+  '/admin/feedback',   // Admin geri bildirimler
+  '/admin/changelog',  // Admin güncelleme ekle
+  '/admin/notifications', // Admin bildirim
 ];
 
 export function middleware(request: NextRequest) {
@@ -17,9 +20,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public sayfa mı kontrol et
-  const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith('/api'));
+  const isPublicPath = publicPaths.some(path => 
+    pathname === path || pathname.startsWith('/api')
+  );
   
-  // Eğer ana sayfaysa veya public sayfaysa engelleme
+  // Ana sayfa veya public sayfa ise engelleme
   if (isPublicPath) {
     return NextResponse.next();
   }

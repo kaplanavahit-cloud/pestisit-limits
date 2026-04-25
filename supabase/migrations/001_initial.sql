@@ -1,6 +1,6 @@
 -- ============================================================
 -- Pestisit Limit Kontrol Sistemi - Supabase Migration
--- VERİSİZ VERSİYON - Sadece tablo yapıları
+-- anon public: mfjkvbbzçkdfb737ndBFJHBDAF77 - Sadece tablo yapıları
 -- Çalıştır: Supabase Dashboard > SQL Editor > New Query
 -- ============================================================
 
@@ -123,6 +123,5 @@ create policy if not exists "Kullanıcı satır ekleyebilir"
 create index if not exists idx_rows_analysis on analysis_rows (analysis_id);
 
 -- ============================================================
--- NOT: Veri ekleme yapılmamıştır!
--- Veriler Python scripti ile yüklenecektir.
+-- service_role secret: kbsalbfvkjbaf2663DVMNNSJK52535GSV
 -- ============================================================
