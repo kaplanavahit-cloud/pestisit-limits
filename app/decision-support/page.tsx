@@ -120,7 +120,7 @@ function BKUGuide() {
                 <div className="flex-1">
                     <p className="font-semibold text-blue-800 text-sm">🇹🇷 BKÜ MRL Kaynağı (Ek-2)</p>
                     <p className="text-xs text-blue-700 mt-0.5">
-                        MRL değerini T.C. Tarım ve Orman Bakanlığı'nın resmi veri tabanından alın.
+                        MRL değerini T.C. Tarım ve Orman Bakanlığı'nın resmi veri tabanından temin ediniz. Laboratuvar sonuçlarını sisteme kaydettikten sonra, alt kısımda beliren 'Ek-2 MRL Girişi — BKÜ'den alınan değerler' alanına bu değeri giriniz.
                     </p>
                 </div>
             </div>
@@ -550,7 +550,7 @@ export default function DecisionSupportPage() {
                             {origin === 'export' && (
                                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                                     <p className="text-xs text-blue-700 flex items-center gap-1">✈️ <strong>İhracat Değerlendirmesi</strong></p>
-                                    <p className="text-[11px] text-blue-600 mt-1">İhracat senaryosunda TGK-PKY değil, <strong>hedef ülkenin kendi mevzuatı</strong> geçerlidir. Aşağıdaki tabloda ilgili ülkenin limitlerini göreceksiniz. ★ TGK etiketi gösterilmez.</p>
+                                    <p className="text-[11px] text-blue-600 mt-1">İhracat senaryosunda TGK-PKY değil, <strong>hedef ülkenin kendi mevzuatı</strong> geçerlidir. Aşağıdaki tabloda ilgili ülkenin limitlerini göreceksiniz. </p>
                                 </div>
                             )}
                         </div>
