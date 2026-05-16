@@ -4,6 +4,113 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import InfoCard from '@/components/InfoCard';
+// ─── Ürün → Kategori eşleme haritası ───────────────────────────
+const PRODUCT_CATEGORY_MAP: Record<string, string[]> = {
+    // ==================== STONE FRUITS ====================
+    apricot: ['Stone fruits', 'Stone fruits (group)', 'fruit stone fruit', 'soft and stone fruits', 'Apricots'],
+    peach: ['Stone fruits', 'Stone fruits (group)', 'fruit stone fruit', 'soft and stone fruits', 'Peaches'],
+    nectarine: ['Stone fruits', 'Stone fruits (group)', 'fruit stone fruit', 'Nectarines'],
+    plum: ['Stone fruits', 'Stone fruits (group)', 'fruit stone fruit', 'Plums'],
+    cherry: ['Stone fruits', 'Stone fruits (group)', 'Cherries'],
+    sour_cherry: ['Stone fruits', 'Stone fruits (group)', 'Cherries', 'Sour cherries'], // ✅ EKLENDI
+    persimmon: ['Stone fruits', 'Persimmons', 'Tropical fruits'], // ✅ EKLENDI
+    mango: ['Stone fruits', 'Tropical fruits', 'Mangoes'],
+    lychee: ['Stone fruits', 'Tropical fruits', 'Lychees'],
+    date: ['Stone fruits', 'Dates'],
+    olive: ['Stone fruits', 'Olives'],
+
+    // ==================== POME FRUITS ====================
+    apple: ['Pome fruits', 'Pome fruits (group)', 'fruit pome fruit', 'pome fruit and stone fruit', 'Apples'],
+    pear: ['Pome fruits', 'Pome fruits (group)', 'fruit pome fruit', 'Pears'],
+    quince: ['Pome fruits', 'Quinces'],
+    loquat: ['Pome fruits', 'Stone fruits', 'Loquats'], // ✅ EKLENDI
+    medlar: ['Pome fruits', 'Medlars'],
+
+    // ==================== CITRUS ====================
+    orange: ['Citrus fruits', 'Citrus fruits (group)', 'Oranges'],
+    lemon: ['Citrus fruits', 'Citrus fruits (group)', 'Lemons'],
+    lime: ['Citrus fruits', 'Citrus fruits (group)', 'Limes'],
+    grapefruit: ['Citrus fruits', 'Citrus fruits (group)', 'Grapefruits'],
+    mandarin: ['Citrus fruits', 'Citrus fruits (group)', 'Mandarins', 'Tangerines'],
+    tangerine: ['Citrus fruits', 'Citrus fruits (group)', 'Tangerines', 'Mandarins'],
+    clementine: ['Citrus fruits', 'Citrus fruits (group)', 'Clementines', 'Mandarins'],
+    bergamot: ['Citrus fruits', 'Citrus fruits (group)', 'Bergamots'], // ✅ EKLENDI
+    bitter_orange: ['Citrus fruits', 'Citrus fruits (group)', 'Bitter oranges'], // ✅ EKLENDI
+    kumquat: ['Citrus fruits', 'Kumquats'],
+    pomelo: ['Citrus fruits', 'Pomelo', 'Citrus fruits (group)'],
+
+    // ==================== SOFT SEEDED / BERRIES ====================
+    strawberry: ['Soft-seeded fruits', 'Soft-seeded', 'soft-seeded-fruit', 'soft seeded fruit', 'fruit with soft seeds', 'Berries and small fruits', 'Strawberries'],
+    raspberry: ['Soft-seeded fruits', 'Soft-seeded', 'Berries and small fruits', 'Raspberries'],
+    blackberry: ['Soft-seeded fruits', 'Soft-seeded', 'Berries and small fruits', 'Blackberries'],
+    blueberry: ['Soft-seeded fruits', 'Soft-seeded', 'Berries and small fruits', 'Blueberries'],
+    cranberry: ['Soft-seeded fruits', 'Soft-seeded', 'Berries and small fruits', 'Cranberries'],
+    grape: ['Soft-seeded fruits', 'Soft-seeded', 'Berries and small fruits', 'Grapes', 'Table grapes', 'Wine grapes'],
+    fig: ['Soft-seeded fruits', 'Soft-seeded', 'fruit with soft seeds', 'Figs'],
+    mulberry: ['Soft-seeded fruits', 'Berries and small fruits', 'Mulberries'], // ✅ EKLENDI
+    pomegranate: ['Soft-seeded fruits', 'Pomegranates'], // ✅ EKLENDI
+    rosehip: ['Soft-seeded fruits', 'Berries and small fruits', 'Rose hips'], // ✅ EKLENDI
+    goji_berry: ['Soft-seeded fruits', 'Berries and small fruits', 'Goji berries'], // ✅ EKLENDI
+    gooseberry: ['Soft-seeded fruits', 'Berries and small fruits', 'Gooseberries'],
+    currant: ['Soft-seeded fruits', 'Berries and small fruits', 'Currants'],
+    elderberry: ['Soft-seeded fruits', 'Berries and small fruits', 'Elderberries'],
+
+    // ==================== TROPICAL & EXOTIC ====================
+    banana: ['Tropical fruits', 'FRESH OR FROZEN FRUITS', 'Bananas'],
+    pineapple: ['Tropical fruits', 'FRESH OR FROZEN FRUITS', 'Pineapples'],
+    papaya: ['Tropical fruits', 'FRESH OR FROZEN FRUITS', 'Papayas'],
+    avocado: ['Tropical fruits', 'FRESH OR FROZEN FRUITS', 'Avocados'],
+    kiwi: ['Tropical fruits', 'FRESH OR FROZEN FRUITS', 'Kiwis', 'Kiwifruit'],
+    guava: ['Tropical fruits', 'FRESH OR FROZEN FRUITS', 'Guavas'],
+    star_fruit: ['Tropical fruits', 'Carambola'], // ✅ EKLENDI
+    physalis: ['Tropical fruits', 'Berries and small fruits', 'Physalis'], // ✅ EKLENDI
+    passion_fruit: ['Tropical fruits', 'Soft-seeded fruits', 'Passion fruit'], // ✅ EKLENDI
+    dragonfruit: ['Tropical fruits', 'Dragon fruit'],
+    mangosteen: ['Tropical fruits', 'Mangosteens'],
+    durian: ['Tropical fruits', 'Durians'],
+    jackfruit: ['Tropical fruits', 'Jackfruits'],
+    breadfruit: ['Tropical fruits', 'Breadfruits'],
+    okra: ['Tropical fruits', 'Okra'], // ✅ EKLENDI
+
+    // ==================== CUCURBITS (KABAKGİLLER) ====================
+    melon: ['Cucurbit fruits', 'Melons'], // ✅ EKLENDI
+    watermelon: ['Cucurbit fruits', 'Watermelons'], // ✅ EKLENDI
+    pumpkin: ['Cucurbit fruits', 'Pumpkins'], // ✅ EKLENDI
+    cucumber: ['Cucurbit fruits', 'Cucumbers'],
+    zucchini: ['Cucurbit fruits', 'Courgettes', 'Zucchinis'],
+
+    // ==================== HARD SHELL (NUTS) ====================
+    almond: ['Fruits with hard shells', 'hard-seeded', 'NUTS WITH HARD SHELLS', 'Tree nuts', 'Almonds'],
+    walnut: ['Fruits with hard shells', 'hard-seeded', 'NUTS WITH HARD SHELLS', 'Tree nuts', 'Walnuts'],
+    hazelnut: ['Fruits with hard shells', 'hard-seeded', 'NUTS WITH HARD SHELLS', 'Tree nuts', 'Hazelnuts', 'Cobnuts'],
+    pistachio: ['Fruits with hard shells', 'hard-seeded', 'NUTS WITH HARD SHELLS', 'Tree nuts', 'Pistachios'],
+    cashew: ['Fruits with hard shells', 'NUTS WITH HARD SHELLS', 'Tree nuts', 'Cashews'],
+    chestnut: ['Fruits with hard shells', 'NUTS WITH HARD SHELLS', 'Tree nuts', 'Chestnuts'],
+    pecan: ['Fruits with hard shells', 'Tree nuts', 'Pecans'],
+    pecan_nut: ['Fruits with hard shells', 'Pecans'], // ✅ EKLENDI
+    macadamia: ['Fruits with hard shells', 'Tree nuts', 'Macadamias'],
+    brazilnut: ['Fruits with hard shells', 'Tree nuts', 'Brazil nuts'],
+    pine_nut: ['Fruits with hard shells', 'Tree nuts', 'Pine nuts'],
+    peanut: ['Fruits with hard shells', 'Peanuts'], // ✅ EKLENDI
+    coconut: ['Fruits with hard shells', 'Coconuts'],
+
+    // ==================== FRESH OR FROZEN (GENEL FALLBACK) ====================
+    fruit: ['FRESH OR FROZEN FRUITS', 'fruit (soft-core and hard-core)', 'fruit (soft and hard-shelled)'],
+    berry: ['Berries and small fruits', 'Soft-seeded fruits', 'soft-seeded-fruit'],
+};
+
+// Arama metninden ilgili kategorileri döndürür
+function getRelatedCategories(searchTerm: string): string[] {
+    const lower = searchTerm.toLowerCase().trim();
+    const categories = new Set<string>();
+
+    for (const [keyword, cats] of Object.entries(PRODUCT_CATEGORY_MAP)) {
+        if (lower.includes(keyword) || keyword.includes(lower)) {
+            cats.forEach(c => categories.add(c));
+        }
+    }
+    return [...categories];
+}
 
 type CountryResult = {
   id: number;
@@ -22,7 +129,7 @@ type CountryResult = {
 };
 
 type ViewMode = 'list' | 'group' | 'table';
-type SortMode = '' | 'mrl-asc' | 'mrl-desc' | 'country' | 'product' | 'pesticide';
+type SortMode = '' | 'mrl-asc' | 'mrl-desc' | 'country' | 'product' | 'pesticide' | 'country-priority-eu' | 'country-priority-tr' | 'country-priority-ru' | 'country-priority-sa' | 'country-priority-codex';
 
 export default function Home() {
   const [session, setSession] = useState<any>(null);
@@ -136,15 +243,38 @@ export default function Home() {
     fetchAllLists();
   }, []);
 
-  const applySortTo = useCallback((data: CountryResult[], mode: SortMode): CountryResult[] => {
-    const d = [...data];
-    if (mode === 'mrl-asc') d.sort((a, b) => (a.mrl_value_numeric ?? 0) - (b.mrl_value_numeric ?? 0));
-    else if (mode === 'mrl-desc') d.sort((a, b) => (b.mrl_value_numeric ?? 0) - (a.mrl_value_numeric ?? 0));
-    else if (mode === 'country') d.sort((a, b) => (a.country?.name ?? '').localeCompare(b.country?.name ?? ''));
-    else if (mode === 'product') d.sort((a, b) => a.product_name.localeCompare(b.product_name));
-    else if (mode === 'pesticide') d.sort((a, b) => a.pesticide_name.localeCompare(b.pesticide_name));
-    return d;
-  }, []);
+    const applySortTo = useCallback((data: CountryResult[], mode: SortMode): CountryResult[] => {
+        const d = [...data];
+
+        // Ülke öncelikli sıralama
+        const priorityMap: Record<string, number> = {
+            'country-priority-eu': 3,    // EU
+            'country-priority-tr': 1,    // Türkiye
+            'country-priority-ru': 2,    // Rusya
+            'country-priority-sa': 5,    // Suudi Arabistan
+            'country-priority-codex': 4, // CODEX
+        };
+
+        if (mode.startsWith('country-priority-')) {
+            const targetId = priorityMap[mode];
+            d.sort((a, b) => {
+                if (a.country_id === targetId && b.country_id !== targetId) return -1;
+                if (a.country_id !== targetId && b.country_id === targetId) return 1;
+                return (a.country?.name ?? '').localeCompare(b.country?.name ?? '');
+            });
+        } else if (mode === 'mrl-asc') {
+            d.sort((a, b) => (a.mrl_value_numeric ?? 0) - (b.mrl_value_numeric ?? 0));
+        } else if (mode === 'mrl-desc') {
+            d.sort((a, b) => (b.mrl_value_numeric ?? 0) - (a.mrl_value_numeric ?? 0));
+        } else if (mode === 'country') {
+            d.sort((a, b) => (a.country?.name ?? '').localeCompare(b.country?.name ?? ''));
+        } else if (mode === 'product') {
+            d.sort((a, b) => a.product_name.localeCompare(b.product_name));
+        } else if (mode === 'pesticide') {
+            d.sort((a, b) => a.pesticide_name.localeCompare(b.pesticide_name));
+        }
+        return d;
+    }, []);
 
   const handleSortChange = (mode: SortMode) => {
     setSortMode(mode);
@@ -158,34 +288,82 @@ export default function Home() {
     }, 100);
   };
 
-  const search = useCallback(async () => {
-    if (!product.trim() && !pesticide.trim()) return;
-    setSearching(true);
-    try {
-      let query = supabase.from('country_limitsa').select('*');
-      if (product.trim()) query = query.ilike('product_name', `%${product.trim()}%`);
-      if (pesticide.trim()) query = query.ilike('pesticide_name', `%${pesticide.trim()}%`);
-      const { data: limits, error } = await query;
-      if (error) throw error;
+    const search = useCallback(async () => {
+        if (!product.trim() && !pesticide.trim()) return;
+        setSearching(true);
 
-      const { data: countriesData } = await supabase.from('countriesa').select('id, name, code');
-      const countryMap = new Map(countriesData?.map(c => [c.id, c]) ?? []);
+        try {
+            // Ürün adına göre ilgili kategorileri bul
+            const relatedCategories = product.trim()
+                ? getRelatedCategories(product.trim())
+                : [];
 
-      const enriched: CountryResult[] = (limits ?? []).map(r => ({
-        ...r,
-        country: countryMap.get(r.country_id),
-      }));
+            // Tüm aranacak product_name değerlerini topla
+            const productTerms: string[] = [];
+            if (product.trim()) {
+                productTerms.push(product.trim());
+                // Basit çoğul/tekil normalizasyon
+                if (!product.trim().endsWith('s')) productTerms.push(product.trim() + 's');
+                if (product.trim().endsWith('s')) productTerms.push(product.trim().slice(0, -1));
+            }
+            relatedCategories.forEach(cat => productTerms.push(cat));
 
-      setRawResults(enriched);
-      setResults(applySortTo(enriched, sortMode));
-      setSearched(true);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSearching(false);
-    }
-  }, [product, pesticide, sortMode, applySortTo]);
+            // Her terim için ayrı OR filtresi oluştur
+            const orFilter = productTerms
+                .map(term => `product_name.ilike.%${term}%`)
+                .join(',');
 
+            // Sorguyu oluştur
+            let query = supabase.from('country_limitsa').select('*');
+
+            if (product.trim() && pesticide.trim()) {
+                // İkisi de varsa: pesticide eşleşmeli, product geniş arama
+                query = query
+                    .or(orFilter)
+                    .ilike('pesticide_name', `%${pesticide.trim()}%`);
+            } else if (product.trim()) {
+                query = query.or(orFilter);
+            } else {
+                // Sadece pesticide
+                query = query.ilike('pesticide_name', `%${pesticide.trim()}%`);
+            }
+
+            const { data: limits, error } = await query;
+            if (error) throw error;
+
+            // Ülke bilgilerini çek ve eşleştir
+            const { data: countriesData } = await supabase
+                .from('countriesa')
+                .select('id, name, code');
+
+            const countryMap = new Map(
+                countriesData?.map(c => [c.id, c]) ?? []
+            );
+
+            const enriched: CountryResult[] = (limits ?? []).map(r => ({
+                ...r,
+                country: countryMap.get(r.country_id),
+            }));
+
+            // Doğrudan eşleşmeleri üstte göster
+            const sorted = enriched.sort((a, b) => {
+                const searchLower = product.trim().toLowerCase();
+                const aIsDirect = searchLower ? a.product_name.toLowerCase().includes(searchLower) : false;
+                const bIsDirect = searchLower ? b.product_name.toLowerCase().includes(searchLower) : false;
+                if (aIsDirect && !bIsDirect) return -1;
+                if (!aIsDirect && bIsDirect) return 1;
+                return 0;
+            });
+
+            setRawResults(sorted);
+            setResults(applySortTo(sorted, sortMode));
+            setSearched(true);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSearching(false);
+        }
+    }, [product, pesticide, sortMode, applySortTo]);
   const stats = (() => {
     const nums = results.map(r => r.mrl_value_numeric).filter((v): v is number => v != null);
     const countries = new Set(results.map(r => r.country_id)).size;
@@ -520,18 +698,29 @@ export default function Home() {
                 ))}
               </div>
 
-              <select
-                value={sortMode}
-                onChange={e => handleSortChange(e.target.value as SortMode)}
-                className="bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 shadow-sm"
-              >
-                <option value="">Sort by...</option>
-                <option value="mrl-asc">MRL ↑ Low to High</option>
-                <option value="mrl-desc">MRL ↓ High to Low</option>
-                <option value="country">Country A→Z</option>
-                <option value="product">Product A→Z</option>
-                <option value="pesticide">Pesticide A→Z</option>
-              </select>
+                          <select
+                              value={sortMode}
+                              onChange={e => handleSortChange(e.target.value as SortMode)}
+                              className="bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 shadow-sm"
+                          >
+                              <option value="">Sort by...</option>
+
+                              {/* Ülke Öncelikli Sıralamalar */}
+                              <option value="country-priority-tr">🇹🇷 Türkiye </option>
+                              <option value="country-priority-ru">🇷🇺 Rusya </option>
+                              <option value="country-priority-eu">🇪🇺 Avrupa Birliği </option>
+                              <option value="country-priority-sa">🇸🇦 Suudi Arabistan </option>
+                              <option value="country-priority-codex">📋 CODEX </option>
+
+                              <option disabled>──────────</option>
+
+                              {/* Mevcut seçenekler */}
+                              <option value="mrl-asc">MRL ↑ Low to High</option>
+                              <option value="mrl-desc">MRL ↓ High to Low</option>
+                              <option value="country">Country A→Z</option>
+                              <option value="product">Product A→Z</option>
+                              <option value="pesticide">Pesticide A→Z</option>
+                          </select>
 
               <div className="ml-auto flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-sm">
                 <span className="text-sm text-gray-500">Found</span>
