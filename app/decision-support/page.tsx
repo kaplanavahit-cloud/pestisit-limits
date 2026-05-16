@@ -518,7 +518,7 @@ export default function DecisionSupportPage() {
                         <div style={{ width: 32, height: 32, backgroundColor: '#19A78C', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
-                        <div><h1 className="text-lg font-bold text-gray-900 leading-tight">MRL <span className="text-[#19A78C]">Control</span></h1><p className="text-xs text-gray-400">TGK-PKY RG 27.09.2021/31611 · Rehber Rev.1 (25.02.2022)</p></div>
+                        <div><h1 className="text-lg font-bold text-gray-900 leading-tight">MRL Control  <span className="text-[#19A78C]"></span></h1><p className="text-xs text-gray-400"></p></div>
                     </div>
                     <Link href="/"><button className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-500 hover:text-emerald-600 text-sm transition-colors">← Ana Sayfa</button></Link>
                 </div>
